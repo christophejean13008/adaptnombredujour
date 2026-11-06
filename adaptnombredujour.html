@@ -55,16 +55,17 @@ footer button:disabled{opacity:.35}
 footer select{font:inherit;font-size:18px;padding:8px;border-radius:10px}
 
 /* ---------- écran de départ ---------- */
-#start{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-#start h1{font-size:46px;margin:0}
-#start .q{font-size:30px}
-#aff{font-size:110px;font-weight:700;min-width:330px;text-align:center;background:#fff;border-radius:24px;padding:0 30px;border:5px solid var(--y);min-height:150px}
-.pad{display:grid;grid-template-columns:repeat(3,100px);gap:12px}
-.pad button{height:86px;font-size:44px;border:none;border-radius:18px;background:#fff;box-shadow:0 3px 0 #0002}
+#start{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:center;justify-content:center;gap:6vw;padding:3vh 3vw;overflow:hidden}
+#start .sL{display:flex;flex-direction:column;align-items:center;gap:2vh;max-width:50vw}
+#start h1{font-size:min(52px,7vh);margin:0;text-align:center}
+#start .q{font-size:min(32px,4.5vh);text-align:center}
+#aff{font-size:min(120px,16vh);line-height:1.2;font-weight:700;min-width:min(340px,40vw);text-align:center;background:#fff;border-radius:24px;padding:0 30px;border:5px solid var(--y);min-height:1.2em}
+.pad{display:grid;grid-template-columns:repeat(3,min(110px,15vh));gap:min(12px,1.6vh)}
+.pad button{height:min(96px,17vh);font-size:min(46px,7vh);border:none;border-radius:18px;background:#fff;box-shadow:0 3px 0 #0002}
 .pad .ok{background:var(--g);color:#fff}
 .pad .del{background:#f3d3d3}
-#msg{font-size:22px;color:var(--r);min-height:1.3em}
-#start .alea{font-size:20px;border:none;background:#fff;border-radius:12px;padding:8px 16px}
+#msg{font-size:min(22px,3vh);color:var(--r);min-height:1.3em}
+#start .alea{font-size:min(22px,3.2vh);border:none;background:#fff;border-radius:12px;padding:8px 16px}
 
 /* ---------- 1 Décomposition ---------- */
 .decomp{display:flex;align-items:center;justify-content:center;gap:0}
@@ -186,15 +187,24 @@ svg .bead{animation:drop .5s ease-in;transform-box:fill-box}
 .cbl{display:flex;align-items:center;gap:10px}
 .cbl .op{font-size:44px;font-weight:700}
 .cbl .tip{font-size:22px;color:#8a6d00;font-weight:700;margin-left:10px}
-.cbin{display:flex;flex-direction:column;align-items:center;gap:10px}
-.cbin .q{font-size:28px;font-weight:700}
-.cbaff{font-size:70px;font-weight:700;min-width:220px;min-height:100px;text-align:center;background:#fff;border:4px solid var(--y);border-radius:20px}
+.inp h2.t{font-size:min(38px,5vh);margin:0 0 1.5vh}
+.cbin{display:grid;grid-template-columns:auto 1fr;gap:3vw;align-items:stretch;height:calc(100% - min(38px,5vh) - 3vh)}
+.cbL{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vh}
+.cbR{display:flex;flex-direction:column;gap:2vh;min-height:0}
+.cbin .q{font-size:min(32px,4.5vh);font-weight:700}
+.cbaff{font-size:min(70px,9vh);line-height:1.25;font-weight:700;min-width:240px;min-height:1.25em;text-align:center;background:#fff;border:4px solid var(--y);border-radius:20px}
+.cbR .cbrow{justify-content:flex-start;margin:0;flex:1;align-content:flex-start;overflow:hidden}
+.kc.mid{height:min(96px,12vh);background:#fff repeating-linear-gradient(to bottom,#fff 0,#fff calc(min(96px,12vh)/8 - 1.5px),#c3cddd calc(min(96px,12vh)/8 - 1.5px),#c3cddd calc(min(96px,12vh)/8))}
+.kc.mid.d1{--w:min(56px,7vh)}.kc.mid.d2{--w:min(96px,12vh)}.kc.mid.d3{--w:min(128px,16vh)}
+.kc.mid span{font-size:min(42px,5.4vh)}
+.cbcible.mid-t{flex-direction:row;font-size:min(26px,3.6vh);gap:14px}
 .cbmsg{font-size:19px;color:var(--r);min-height:1.2em}
-.pad.sm{grid-template-columns:repeat(3,84px);gap:8px}
-.pad.sm button{height:64px;font-size:32px}
+.pad.sm{grid-template-columns:repeat(3,min(88px,11vh));gap:min(8px,1vh)}
+.pad.sm button{height:min(70px,9.5vh);font-size:min(34px,5vh)}
 .pad.sm .ok{font-size:22px}
 .cbact{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.cbact button{border:none;border-radius:14px;padding:10px 18px;font-size:21px;background:#e9e6df}
+.cbact{justify-content:flex-start}
+.cbact button{border:none;border-radius:14px;padding:min(12px,1.6vh) 20px;font-size:min(22px,3vh);background:#e9e6df}
 .cbact .go{background:var(--g);color:#fff;font-weight:700}
 .cbh{font-size:22px;font-weight:700;margin:10px 0 6px}
 .cbg{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:6px}
@@ -212,12 +222,14 @@ svg .bead{animation:drop .5s ease-in;transform-box:fill-box}
 <body>
 
 <div id="start">
-  <h1>🌟 Le nombre du jour</h1>
-  <div class="q">Maîtresse, quel est le nombre du jour ?</div>
-  <div id="aff"></div>
-  <div id="msg"></div>
+  <div class="sL">
+    <h1>🌟 Le nombre du jour</h1>
+    <div class="q">Maîtresse, quel est le nombre du jour ?</div>
+    <div id="aff"></div>
+    <div id="msg"></div>
+    <button class="alea" id="alea">🎲 Un nombre au hasard</button>
+  </div>
   <div class="pad" id="pad"></div>
-  <button class="alea" id="alea">🎲 Un nombre au hasard</button>
 </div>
 
 <header>
@@ -364,12 +376,15 @@ function cbSolve(nums,T){
 }
 function cbInput(ex){
   let s='';const isT=CB.phase==='target';
-  ex.innerHTML=`<h2 class="t">Le compte est bon</h2><div class="cbin">
-   <div class="q">${isT?'🎯 Quel nombre faut-il trouver ?':'Maîtresse, quels sont les nombres ?'}</div>
-   <div class="cbaff"></div><div class="cbmsg"></div><div class="pad sm"></div><div class="cbact"></div>
-   <div class="cbrow prev"></div></div>`;
+  ex.classList.add('inp');
+  ex.innerHTML=`<h2 class="t">🎯 Le compte est bon</h2><div class="cbin">
+   <div class="cbL"><div class="cbaff"></div><div class="cbmsg"></div><div class="pad sm"></div></div>
+   <div class="cbR"><div class="q">${isT?'Quel nombre faut-il trouver ?':'Maîtresse, quels sont les nombres ?'}</div>
+   <div class="cbact"></div>
+   <div style="font-size:min(20px,2.8vh);color:#666">${isT?'Les cartes :':'Les cartes (toucher une carte pour l\'enlever) :'}</div>
+   <div class="cbrow prev"></div></div></div>`;
   const aff=$('.cbaff',ex),msg=$('.cbmsg',ex),row=$('.cbrow',ex),act=$('.cbact',ex);
-  const prev=()=>{row.innerHTML=CB.nums.map((v,i)=>cbCard(v,'c'+i)).join('');
+  const prev=()=>{row.innerHTML=CB.nums.map((v,i)=>cbCard(v,'c'+i,'mid')).join('');
     if(!isT)row.querySelectorAll('.kc').forEach((c,i)=>{c.title='Toucher pour enlever';c.onclick=()=>{CB.nums.splice(i,1);prev();};});
     const nx=$('.go',act);if(nx)nx.disabled=CB.nums.length<1;};
   const press=t=>{msg.textContent='';
@@ -706,7 +721,7 @@ function go(i){
   const p2=cur===P2;
   document.body.classList.toggle('p2',p2);
   [...nav.children].forEach((b,j)=>b.classList.toggle('on',j===cur));
-  R=null;ex.innerHTML='';aide.innerHTML='';ex.style.removeProperty('--cell');ex.scrollTop=0;
+  R=null;ex.classList.remove('inp');ex.innerHTML='';aide.innerHTML='';ex.style.removeProperty('--cell');ex.scrollTop=0;
   const recap=cur===STEPS.length;
   $('#bCorr').disabled=$('#bReset').disabled=$('#bAide').disabled=recap;
   $('#bPrev').disabled=cur===0;$('#bNext').disabled=p2;
@@ -715,6 +730,7 @@ function go(i){
   if(recap)return renderRecap();
   R=stepOf(cur).render(ex,aide);
   $('#bCorr').disabled=R&&R.ready===false;
+  if(R&&R.ready===false){main.classList.add('noaide');ex.style.overflow='hidden';}else ex.style.overflow='';
 }
 async function correction(){
   if(cur===STEPS.length)return;
