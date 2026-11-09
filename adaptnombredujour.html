@@ -218,7 +218,8 @@ svg .bead{animation:drop .5s ease-in;transform-box:fill-box}
 /* ---------- Fiche complète ---------- */
 .recap{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px}
 .card{border:2px solid #ddd;border-radius:16px;padding:12px;overflow:hidden;background:#fff}
-.card .in{zoom:.5}
+.card{position:relative}
+.card .in{width:200%;transform:scale(.5);transform-origin:top left}
 .card .in .hl{outline:none!important;background:none!important;transform:none}
 #print{display:none}
 #start .printb{font-size:min(20px,3vh);border:none;background:#fff;border-radius:12px;padding:8px 16px}
@@ -283,7 +284,7 @@ const fmt=n=>n>=1000?String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '):String(n);
 function pop(e){if(!e)return;e.classList.remove('pop');void e.offsetWidth;e.classList.add('pop');}
 
 let N=null,cur=0,RUN=0,R=null,SPEED=1;const STOP={stop:1};
-const S={rect:true,money:'min'};
+const S={rect:true,money:'min',cbmode:'aides'};
 try{Object.assign(S,JSON.parse(localStorage.getItem('nbjour-reglages')||'{}'));}catch(e){}
 function save(){try{localStorage.setItem('nbjour-reglages',JSON.stringify(S));}catch(e){}}
 
@@ -376,23 +377,25 @@ function cbSim(nums,sign){
   }
   let c=pool[0];
   for(const m of M.sort((x,y)=>y.v-x.v)){const r={v:c.v-m.v,id:'r'+(rc++)};ops.push({a:c,b:m,op:'−',r});c=r;}
-  return{ops,final:c,value:c.v,score:aids*3-M.length*6-(P.length+M.length)};
+  return{ops,final:c,value:c.v,minus:M.length,score:aids*3-M.length*6-(P.length+M.length)};
 }
-function cbSolve(nums,T){
+function cbSolve(nums,T,mode){
   const n=nums.length,ex=[];let best=null;const sg=new Array(n).fill(0);
   const rec=(i,val,np,neg)=>{
     if(i===n){if(!np||val<0)return;const d=Math.abs(val-T);
-      if(d===0){if(ex.length<3000)ex.push(sg.slice());}else if(!best||d<best.d)best={d,s:sg.slice()};return;}
+      if(d===0){if(ex.length<20000)ex.push(sg.slice());}else if(!best||d<best.d)best={d,s:sg.slice()};return;}
     sg[i]=0;rec(i+1,val,np,neg);sg[i]=1;rec(i+1,val+nums[i],np+1,neg);
     if(neg){sg[i]=-1;rec(i+1,val-nums[i],np,neg);}sg[i]=0;
   };
   rec(0,0,0,false);
-  if(ex.length<3)rec(0,0,0,true);
+  if(ex.length<3||mode==='court'){ex.length=0;rec(0,0,0,true);}
   if(!ex.length)return[cbSim(nums,best.s)];
   const seen=new Set(),out=[];
   for(const s of ex){const key=nums.map((v,i)=>s[i]?s[i]*v:null).filter(x=>x!==null).sort((a,b)=>a-b).join(',');
     if(seen.has(key))continue;seen.add(key);out.push(cbSim(nums,s));}
-  out.sort((a,b)=>b.score-a.score);return out.slice(0,30);
+  if(mode==='court')out.sort((a,b)=>(a.ops.length-b.ops.length)||(a.minus-b.minus)||(b.score-a.score));
+  else out.sort((a,b)=>b.score-a.score);
+  return out.slice(0,30);
 }
 function cbInput(ex){
   let s='';const isT=CB.phase==='target';
@@ -745,16 +748,18 @@ render(ex,aide){
   if(CB.phase!=='play'||CB.target==null||CB.nums.length<1)return cbInput(ex);
   ex.innerHTML=`<h2 class="t">Le compte est bon</h2>
    <div class="cbtop"><div class="cbcible">🎯 Nombre à trouver${cbCard(CB.target,'t','target')}</div>
-   <div class="cbbtn"><button class="mini-b" data-a="edit">✏️ Changer les nombres</button><button class="mini-b" data-a="alt" style="display:none">🔄 Autre solution</button></div></div>
+   <div class="cbbtn"><button class="mini-b" data-a="edit">✏️ Changer les nombres</button><button class="mini-b" data-a="alt" style="display:none">🔄 Autre solution</button>
+   <div class="seg cbmode"><button data-m="aides" class="${S.cbmode!=='court'?'on':''}">💡 Avec les aides</button><button data-m="court" class="${S.cbmode==='court'?'on':''}">⚡ La plus courte</button></div></div></div>
    <div class="cbrow">${CB.nums.map((v,i)=>cbCard(v,'c'+i)).join('')}</div>
    <div class="cbcalc"></div><div class="phrase"></div>`;
   $('[data-a=edit]',ex).onclick=()=>{CB.phase='nums';go(cur);};
+  ex.querySelectorAll('.cbmode button').forEach(b=>b.onclick=()=>{S.cbmode=b.dataset.m;save();CB.sol=0;go(cur);});
   const alt=$('[data-a=alt]',ex);alt.onclick=()=>{CB.sol++;correction();};
   return{ready:true,aide,row:$('.cbrow',ex),calc:$('.cbcalc',ex),ph:$('.phrase',ex),alt};
 },
 async solve(k,R){
   if(!R.ready)return;
-  const sols=cbSolve(CB.nums,CB.target),sol=sols[CB.sol%sols.length];
+  const sols=cbSolve(CB.nums,CB.target,S.cbmode),sol=sols[CB.sol%sols.length];
   const card=id=>R.row.querySelector(`[data-id="${id}"]`)||R.calc.querySelector(`[data-id="${id}"]`);
   await k.wait(300);
   for(const o of sol.ops){
@@ -778,7 +783,7 @@ async solve(k,R){
   }
   const fc=card(sol.final.id);fc&&fc.classList.remove('used');fc&&fc.classList.add('win');
   const v=sol.value,T=CB.target;
-  R.ph.innerHTML=v===T?(sol.ops.length?'🎉 Le compte est bon !':`🎉 La carte ${v} est déjà le bon nombre !`)
+  R.ph.innerHTML=v===T?(sol.ops.length?`🎉 Le compte est bon ! <small style="font-weight:400">(${sol.ops.length} calcul${sol.ops.length>1?'s':''})</small>`:`🎉 La carte ${v} est déjà le bon nombre !`)
     :`Le compte n'est pas bon : on trouve ${v}.<br>${v<T?'Il manque '+(T-v):'Il y a '+(v-T)+' de trop'}.`;
   pop(R.ph);R.ph.scrollIntoView({block:'nearest',behavior:'smooth'});
   if(sols.length>1){R.alt.style.display='';R.alt.textContent=`🔄 Autre solution (${CB.sol%sols.length+1}/${sols.length})`;}
@@ -817,7 +822,7 @@ function renderRecap(){
   STEPS.forEach(s=>{
     const card=h('div','card'),inn=h('div','in');card.appendChild(inn);g.appendChild(card);
     const ghost=h('div');ghost.style.cssText='position:absolute;left:-9999px;top:0;width:600px';document.body.appendChild(ghost);
-    try{const r=s.render(inn,ghost);s.solve(makeCtx(true),r).finally(()=>ghost.remove());}catch(e){console.error(e);ghost.remove();}
+    try{const r=s.render(inn,ghost);s.solve(makeCtx(true),r).finally(()=>{ghost.remove();card.style.height=(inn.scrollHeight/2+26)+'px';fitAll();});}catch(e){console.error(e);ghost.remove();}
   });
 }
 
@@ -835,12 +840,12 @@ function fitPanel(panel){
   const w=wrapFit(panel),cs=getComputedStyle(panel);
   const aw=panel.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
   const ah=panel.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
-  const ok=z=>{w.style.zoom=z;w.style.width=(aw/z)+'px';return w.scrollHeight*z<=ah+1;};
+  const ok=z=>{w.style.transform=z<1?`scale(${z})`:'';w.style.width=(aw/z)+'px';return w.scrollHeight*z<=ah+1;};
   if(ok(1)&&w.scrollWidth<=aw+1)return;
   let lo=0.25,hi=1;
   for(let i=0;i<9;i++){const m=(lo+hi)/2;if(ok(m))lo=m;else hi=m;}
   ok(lo);
-  const sw=w.scrollWidth,cw=aw/lo;if(sw>cw+1){const z=lo*cw/sw;w.style.zoom=z;w.style.width=(aw/z)+'px';}
+  const sw=w.scrollWidth,cw=aw/lo;if(sw>cw+1){const z=lo*cw/sw;w.style.transform=`scale(${z})`;w.style.width=(aw/z)+'px';}
 }
 let fitQ=false;
 function fitAll(){if(fitQ)return;fitQ=true;requestAnimationFrame(()=>{fitQ=false;fitObs.disconnect();
