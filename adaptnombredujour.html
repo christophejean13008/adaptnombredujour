@@ -52,6 +52,9 @@ h2.t{font-size:40px;margin:0 0 16px;text-align:center}
 footer{display:flex;gap:10px;align-items:center;justify-content:center;padding:10px;background:#fff;flex-wrap:wrap}
 footer button{font-size:22px;border:none;border-radius:14px;padding:12px 20px;background:#e9e6df}
 footer button:disabled{opacity:.35}
+svg.ar{width:1.1em;height:1.1em;vertical-align:-.18em;fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+#bNext{background:#2e9e4f;color:#fff;font-weight:700}
+#bNext:disabled{background:#e9e6df;color:inherit}
 #bCorr{background:var(--b);color:#fff;font-weight:700;font-size:26px;padding:12px 30px}
 #bAide.on{background:#ffe48a}
 footer select{font:inherit;font-size:18px;padding:8px;border-radius:10px}
@@ -263,17 +266,18 @@ svg .bead{animation:drop .5s ease-in;transform-box:fill-box}
   <section class="panel" id="aide"></section>
 </main>
 <footer>
-  <button id="bPrev">◀</button>
+  <button id="bPrev"></button>
   <button id="bAide" class="on">💡 Aide</button>
   <button id="bCorr">✨ Correction</button>
   <button id="bReset">↺ Effacer</button>
   <select id="vit" title="Vitesse de l'animation"><option value="1.7">🐢 Lent</option><option value="1" selected>Normal</option><option value="0.5">🐇 Rapide</option></select>
-  <button id="bNext">▶</button>
+  <button id="bNext"></button>
 </footer>
 
 <div id="print"></div>
 <script>
 /* ================= outils ================= */
+const AL='<svg class="ar" viewBox="0 0 24 24"><path d="M15 4 L7 12 L15 20"/></svg>',AR='<svg class="ar" viewBox="0 0 24 24"><path d="M9 4 L17 12 L9 20"/></svg>';
 const $=(s,r=document)=>r.querySelector(s);
 const h=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
 const SVGNS='http://www.w3.org/2000/svg';
@@ -420,13 +424,13 @@ function cbInput(ex){
     aff.textContent=s;};
   ['7','8','9','4','5','6','1','2','3','⌫','0','OK'].forEach(t=>{const b=h('button',t==='OK'?'ok':t==='⌫'?'del':null,t==='OK'?(isT?'OK':'Ajouter'):t);b.onclick=()=>press(t);$('.pad',ex).appendChild(b);});
   if(isT){
-    const b1=h('button',null,'◀ Revenir aux nombres');b1.onclick=()=>{CB.phase='nums';go(cur);};
+    const b1=h('button',null,AL+' Revenir aux nombres');b1.onclick=()=>{CB.phase='nums';go(cur);};
     const b2=h('button',null,`🌟 Le nombre du jour (${N})`);b2.onclick=()=>{s=String(N);press('OK');};
     if(N==null)b2.style.display='none';
     act.append(b1,b2);
   }else{
     const b1=h('button',null,'🗑 Tout effacer');b1.onclick=()=>{CB.nums=[];prev();};
-    const b2=h('button','go','Suivant : le nombre à trouver ▶');b2.onclick=()=>{if(!CB.nums.length)return;CB.phase='target';go(cur);};
+    const b2=h('button','go','Suivant : le nombre à trouver '+AR);b2.onclick=()=>{if(!CB.nums.length)return;CB.phase='target';go(cur);};
     act.append(b1,b2);
   }
   prev();
@@ -803,7 +807,8 @@ function go(i){
   const recap=cur===STEPS.length;
   $('#bCorr').disabled=$('#bReset').disabled=$('#bAide').disabled=recap;
   $('#bPrev').disabled=cur===0;$('#bNext').disabled=p2;
-  $('#bNext').textContent=recap?'Partie 2 : Le compte est bon ▶':'▶';
+  $('#bNext').innerHTML=recap?'Partie 2 : Le compte est bon '+AR:'Suivant '+AR;
+  $('#bPrev').innerHTML=AL+' Précédent';
   main.classList.toggle('noaide',recap||!$('#bAide').classList.contains('on'));
   if(recap){renderRecap();fitAll();return;}
   R=stepOf(cur).render(ex,aide);
